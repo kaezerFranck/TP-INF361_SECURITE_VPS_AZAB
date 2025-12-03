@@ -170,7 +170,40 @@ terraform --version
 
 ---
 
-## 📖 Partie 0 : Sécurité SSH
+## � Ordre d'exécution recommandé
+
+> **IMPORTANT** : Les parties doivent être exécutées dans l'ordre suivant pour une configuration cohérente.
+
+```mermaid
+flowchart LR
+    P0["🔐 Partie 0<br/>Config SSH<br/>(Port 2222)"]
+    P1["💻 Partie 1<br/>Script Bash"]
+    P2["🤖 Partie 2<br/>Ansible"]
+    P3["🏗️ Partie 3<br/>Terraform"]
+    
+    P0 --> P1
+    P0 --> P2
+    P0 --> P3
+    
+    style P0 fill:#ffcdd2
+    style P1 fill:#c8e6c9
+    style P2 fill:#bbdefb
+    style P3 fill:#e1bee7
+```
+
+### ⚙️ Configuration SSH cohérente
+
+Toutes les parties utilisent la **même configuration SSH** après durcissement :
+
+| Paramètre | Valeur | Fichiers concernés |
+|-----------|--------|-------------------|
+| **Port SSH** | `2222` | `configure_ssh.sh`, `inventory.ini`, `terraform.tfvars` |
+| **Groupe autorisé** | `students-inf-361` | Toutes les parties |
+| **Authentification** | Clé SSH (recommandé) | Après `PasswordAuthentication no` |
+
+---
+
+## �📖 Partie 0 : Sécurité SSH
 
 ### 📍 Emplacement : `Partie0-SSH/`
 

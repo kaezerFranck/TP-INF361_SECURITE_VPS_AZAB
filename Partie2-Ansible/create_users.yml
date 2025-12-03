@@ -32,8 +32,8 @@
     # Limite mémoire en pourcentage de RAM
     ram_limit_percent: 20
     
-    # Configuration du serveur SSH
-    ssh_port: 22
+    # Configuration du serveur SSH (port modifié pour la sécurité - voir Partie0)
+    ssh_port: 2222
     
     # Fichier source des utilisateurs (format TXT)
     users_file: "{{ playbook_dir }}/users.txt"
