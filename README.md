@@ -377,6 +377,13 @@ ansible-playbook -i inventory.ini create_users.yml --check
 # 7. Exécuter le playbook (pour de vrai)
 ansible-playbook -i inventory.ini create_users.yml
 
+
+
+
+# Exécuter le playbook (demandera le mot de passe vault)
+ansible-playbook -i inventory.ini create_users.yml --ask-vault-pass
+# Entrer : MonMotDePasseVault2025
+
 # 8. Vérifier les résultats sur le serveur
 ssh admin@VOTRE_IP_VPS "getent group students-inf-361"
 ```
