@@ -4,6 +4,7 @@
 #          FILE:  create_users.yml
 #
 #   DESCRIPTION:  Playbook Ansible pour l'automatisation de création d'utilisateurs
+#                 Charge les utilisateurs depuis le fichier users.txt
 #                 TP 1 - INF 3611 : Administration Systèmes et Réseaux
 #
 #        AUTHOR:  AZAB A RANGA FRANCK MIGUEL
@@ -34,51 +35,44 @@
     # Configuration du serveur SSH
     ssh_port: 22
     
+    # Fichier source des utilisateurs (format TXT)
+    users_file: "{{ playbook_dir }}/users.txt"
+    
     # Configuration email (à personnaliser)
     smtp_host: "smtp.gmail.com"
     smtp_port: 587
     smtp_user: "votre-email@gmail.com"
     smtp_password: "votre-mot-de-passe-application"
     email_from: "admin@univ-yaounde1.cm"
-    
-    # Liste des utilisateurs (peut être chargée depuis un fichier YAML externe)
-    users:
-      - username: jean.dupont
-        password: "TempPass123!"
-        full_name: "Jean Dupont"
-        phone: "+237699001122"
-        email: "jean.dupont@univ-yaounde1.cm"
-        shell: "/bin/bash"
-      
-      - username: marie.kamga
-        password: "SecureP@ss456"
-        full_name: "Marie Kamga"
-        phone: "+237677889900"
-        email: "marie.kamga@univ-yaounde1.cm"
-        shell: "/bin/zsh"
-      
-      - username: paul.nguema
-        password: "MyP@ssw0rd789"
-        full_name: "Paul Nguema"
-        phone: "+237655443322"
-        email: "paul.nguema@univ-yaounde1.cm"
-        shell: "/bin/bash"
-      
-      - username: alice.mbarga
-        password: "Str0ngP@ss!"
-        full_name: "Alice Mbarga"
-        phone: "+237690112233"
-        email: "alice.mbarga@univ-yaounde1.cm"
-        shell: "/bin/bash"
-      
-      - username: bob.fouda
-        password: "P@ssw0rd2025"
-        full_name: "Bob Fouda"
-        phone: "+237688776655"
-        email: "bob.fouda@univ-yaounde1.cm"
-        shell: "/usr/bin/fish"
 
   tasks:
+    # =========================================================================
+    # CHARGEMENT DES UTILISATEURS DEPUIS LE FICHIER users.txt
+    # =========================================================================
+    
+    - name: Lecture du fichier users.txt
+      slurp:
+        src: "{{ users_file }}"
+      register: users_file_content
+      delegate_to: localhost
+      become: no
+    
+    - name: Parsing du fichier users.txt
+      set_fact:
+        users: >-
+          {{
+            (users_file_content.content | b64decode).split('\n')
+            | select('match', '^[^#].*')
+            | select('search', ';')
+            | map('regex_replace', '^([^;]+);([^;]+);([^;]+);([^;]+);([^;]+);([^;]+)\\s*$', '{"username": "\1", "password": "\2", "full_name": "\3", "phone": "\4", "email": "\5", "shell": "\6"}')
+            | map('from_json')
+            | list
+          }}
+    
+    - name: Affichage des utilisateurs chargés
+      debug:
+        msg: "{{ users | length }} utilisateur(s) chargé(s) depuis {{ users_file }}"
+    
     # =========================================================================
     # PRÉPARATION DU SYSTÈME
     # =========================================================================
@@ -320,6 +314,7 @@
           Date d'exécution    : {{ ansible_date_time.iso8601 }}
           Serveur cible       : {{ inventory_hostname }} ({{ server_ip }})
           Groupe créé         : {{ group_name }}
+          Fichier source      : {{ users_file }}
           ================================================================================
           
           UTILISATEURS CRÉÉS :
@@ -355,6 +350,7 @@
           📊 Résumé :
              - Groupe créé          : {{ group_name }}
              - Utilisateurs créés   : {{ users | length }}
+             - Fichier source       : {{ users_file }}
              - Emails envoyés       : {{ users | length }}
           
           📁 Fichiers générés :
