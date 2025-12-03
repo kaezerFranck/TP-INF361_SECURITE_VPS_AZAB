@@ -193,7 +193,7 @@
     
     - name: Création du fichier WELCOME.txt
       template:
-        src: templates/welcome.txt.j2
+        src: templates/welcome.txt
         dest: "/home/{{ item.username }}/WELCOME.txt"
         owner: "{{ item.username }}"
         group: "{{ item.username }}"
